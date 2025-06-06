@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Panel Administrador - FERREMAS</title>
+  <link rel="stylesheet" href="../css/estilos.css">
+</head>
+<body>
+  <header>
+    <h1>Dashboard del Administrador</h1>
+    <nav>
+      <a href="../index.html">Inicio</a>
+      <a href="#">Cerrar sesión</a>
+    </nav>
+  </header>
+
+  <main>
+    <h2>Funciones del Administrador</h2>
+    <ul>
+      <li><button onclick="generarInformeVentas()">Generar informe de ventas</button></li>
+      <li><button onclick="verDesempeño()">Ver desempeño de la tienda</button></li>
+      <li><button onclick="gestionarPromociones()">Gestionar promociones</button></li>
+      <li><button onclick="gestionarUsuarios()">Gestionar usuarios</button></li>
+    </ul>
+  </main>
+
+  <script>
+    function generarInformeVentas() {
+      alert("Aquí se conectará con tu API de informes de ventas.");
+    }
+
+    function verDesempeño() {
+      alert("Aquí irá el informe de desempeño.");
+    }
+
+    function gestionarPromociones() {
+      alert("Aquí podrás agregar o quitar promociones.");
+    }
+
+    function gestionarUsuarios() {
+      alert("Aquí se integrará la gestión de cuentas.");
+    }
+  </script>
+</body>
+</html>

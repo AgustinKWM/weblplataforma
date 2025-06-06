@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Catálogo - FERREMAS</title>
+  <link rel="stylesheet" href="css/estilos.css">
+</head>
+<body>
+  <header>
+    <h1>FERREMAS</h1>
+    <nav>
+      <a href="index.html">Inicio</a>
+      <a href="catalogo.html">Catálogo</a>
+      <a href="carrito.html">Carrito</a>
+      <a href="login.html">Cuenta</a>
+    </nav>
+  </header>
+
+  <main>
+    <h2>Catálogo de Productos</h2>
+    <div id="catalogo" class="catalogo"></div>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 FERREMAS</p>
+  </footer>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const contenedor = document.getElementById("catalogo");
+
+      fetch("http://localhost:3000/api/productos")
+        .then(res => res.json())
+        .then(data => {
+          const productos = data.data;
+          if (!productos || productos.length === 0) {
+            contenedor.innerHTML = "<p>No hay productos disponibles.</p>";
+            return;
+          }
+
+          productos.forEach(prod => {
+            contenedor.innerHTML += `
+              <div class="producto">
+                <div>
+                  <h3>${prod.nombre}</h3>
+                  <p>${prod.Descripcion}</p>
+                  <p><strong>Precio:</strong> $${prod.Precio.toLocaleString()}</p>
+                </div>
+                <div>
+                  <button onclick="agregarAlCarrito('${prod.nombre}', ${prod.Precio})">Agregar al carrito</button>
+                </div>
+              </div>
+            `;
+          });
+        })
+        .catch(err => {
+          console.error("Error al cargar productos:", err);
+          contenedor.innerHTML = "<p>Error al cargar productos.</p>";
+        });
+    });
+
+    function agregarAlCarrito(nombre, precio) {
+      const carrito = JSON.parse(localStorage.getItem("carrito")) || [];
+      carrito.push({ nombre, precio });
+      localStorage.setItem("carrito", JSON.stringify(carrito));
+      alert(`${nombre} agregado al carrito`);
+    }
+  </script>
+</body>
+</html>

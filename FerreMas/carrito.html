@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Carrito - FERREMAS</title>
+  <link rel="stylesheet" href="css/estilos.css">
+</head>
+<body>
+  <header>
+    <h1>Carrito de Compras</h1>
+    <nav>
+      <a href="index.html">Inicio</a>
+      <a href="catalogo.html">Catálogo</a>
+      <a href="carrito.html">Carrito</a>
+      <a href="login.html">Cuenta</a>
+    </nav>
+  </header>
+
+  <main>
+    <div id="carritoContainer"></div>
+    <p id="total"></p>
+    <button onclick="finalizarCompra()">Finalizar Compra</button>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 FERREMAS</p>
+  </footer>
+
+  <script>
+    const carrito = JSON.parse(localStorage.getItem('carrito')) || [];
+    const container = document.getElementById('carritoContainer');
+    const totalElem = document.getElementById('total');
+    let total = 0;
+
+    if (carrito.length === 0) {
+      container.innerHTML = "<p>Tu carrito está vacío.</p>";
+    } else {
+      carrito.forEach((producto) => {
+        const item = document.createElement('div');
+        item.innerHTML = `<p>${producto.nombre} - $${producto.precio.toLocaleString()}</p>`;
+        container.appendChild(item);
+        total += producto.precio;
+      });
+      totalElem.innerText = "Total: $" + total.toLocaleString();
+    }
+
+    async function finalizarCompra() {
+      if (total <= 0) {
+        alert("Tu carrito está vacío.");
+        return;
+      }
+
+      try {
+        const response = await fetch('http://localhost:3000/api/webpay/create', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            buy_order: 'orden_' + Date.now(),
+            session_id: 'sesion_' + Date.now(),
+            amount: total,
+            return_url: 'http://localhost:5500/resultado.html'  // Cambia esto si tu web corre en otro puerto
+          })
+        });
+
+        const data = await response.json();
+
+        if (data.success && data.url) {
+          localStorage.removeItem('carrito');
+          window.location.href = data.url;
+        } else {
+          alert("Error al procesar el pago: " + (data.error || "Respuesta inválida."));
+        }
+      } catch (error) {
+        console.error("Error al conectar con la API de Transbank:", error);
+        alert("Ocurrió un error al intentar conectar con el sistema de pago.");
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Resultado del Pago - FERREMAS</title>
+  <link rel="stylesheet" href="css/estilos.css">
+</head>
+<body>
+  <header>
+    <h1>Resultado del Pago</h1>
+    <nav>
+      <a href="index.html">Inicio</a>
+      <a href="catalogo.html">Catálogo</a>
+      <a href="carrito.html">Carrito</a>
+    </nav>
+  </header>
+
+  <main>
+    <div id="resultado"></div>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 FERREMAS</p>
+  </footer>
+
+  <script>
+    async function confirmarPago() {
+      const params = new URLSearchParams(window.location.search);
+      const token = params.get("token_ws");
+
+      if (!token) {
+        document.getElementById("resultado").innerHTML = "<p>Error: No se recibió el token de pago.</p>";
+        return;
+      }
+
+      try {
+        const response = await fetch("http://localhost:3000/api/webpay/commit", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ token })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          document.getElementById("resultado").innerHTML = `
+            <h2>Pago ${data.status === "AUTHORIZED" ? "Exitoso ✅" : "Pendiente ⏳"}</h2>
+            <p><strong>Estado:</strong> ${data.status}</p>
+            <p><strong>Monto:</strong> $${data.details.amount.toLocaleString()}</p>
+            <p><strong>Orden de compra:</strong> ${data.details.buy_order}</p>
+            <p><strong>Tarjeta:</strong> **** **** **** ${data.details.card_detail.card_number}</p>
+            <a href="index.html">Volver al inicio</a>
+          `;
+        } else {
+          document.getElementById("resultado").innerHTML = `
+            <h2>Pago Rechazado ❌</h2>
+            <p>${data.message || "Tu pago no pudo completarse."}</p>
+            <a href="carrito.html">Volver al carrito</a>
+          `;
+        }
+
+      } catch (error) {
+        console.error("Error al confirmar el pago:", error);
+        document.getElementById("resultado").innerHTML = `
+          <p>Ocurrió un error al procesar el pago. Intenta nuevamente.</p>
+          <a href="carrito.html">Volver al carrito</a>
+        `;
+      }
+    }
+
+    confirmarPago();
+  </script>
+</body>
+</html>
